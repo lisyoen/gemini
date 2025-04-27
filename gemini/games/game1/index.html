@@ -13,6 +13,25 @@
     margin: 0;
     padding: 20px;
   }
+  #homeButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #457b9d;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  #homeButton:hover {
+    background-color: #1d3557;
+  }
   #promptTitle {
     font-size: 28px;
     font-weight: bold;
@@ -155,6 +174,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <a id="homeButton" href="/gemini/">Home</a>
   <div id="promptTitle">Gemini Canvas Prompt</div>
   <div id="promptBox">
     스네이크 게임 만들어줘, 맵 타일은 작게 50x50 으로. 게임이 끝나면 하이스코어, 시작버튼 표시<br>
