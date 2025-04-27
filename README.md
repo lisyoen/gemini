@@ -1,2 +1,2 @@
 # gemini
-Gemini Canvas 로 만든 게임들
+Google Gemini Canvas로 만든 HTML 게임들 모음

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>스네이크 게임</title>
+<style>
+  /* 게임 스타일 */
+  body {
+    background-color: #e8f0fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  #gameCanvas {
+    background-color: #a8dadc;
+    border: 4px solid #457b9d;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+    border-radius: 8px; /* 둥근 테두리 */
+  }
+  #messageDisplay {
+    font-size: 24px;
+    color: #1d3557;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold; /* 텍스트 굵게 */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* 텍스트 그림자 */
+  }
+  #startButton {
+    padding: 12px 24px;
+    font-size: 18px;
+    color: white;
+    background-color: #e63946;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    font-family: 'Roboto', sans-serif; /* 폰트 변경 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+  }
+  #startButton:hover {
+    background-color: #c3073f;
+  }
+  #scoreDisplay {
+    font-size: 20px;
+    color: #283618;
+    margin-bottom: 15px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+  }
+  .game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  .game-over-content {
+    background-color: #fefefe;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 2px solid #7400b8;
+  }
+  .game-over-title {
+    font-size: 36px;
+    color: #d90429;
+    margin-bottom: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+  }
+  .game-over-score {
+    font-size: 24px;
+    color: #4a148c;
+    margin-bottom: 25px;
+    font-family: 'Lato', sans-serif;
+  }
+  #restartButton {
+    padding: 15px 30px;
+    font-size: 20px;
+    color: white;
+    background-color: #ff5e57;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  }
+  #restartButton:hover {
+    background-color: #c83e4d;
+  }
+  /* Responsive adjustments */
+  @media screen and (max-width: 600px) {
+    #gameCanvas {
+      width: 95%;
+      height: auto;
+    }
+    #messageDisplay {
+      font-size: 20px;
+    }
+    #startButton, #restartButton {
+      font-size: 16px;
+      padding: 10px 20px;
+    }
+    .game-over-content {
+      padding: 20px;
+    }
+    .game-over-title {
+      font-size: 28px;
+    }
+    .game-over-score {
+      font-size: 20px;
+    }
+  }
+</style>
+<!-- Google Fonts imports -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="scoreDisplay">내 점수: 0 | 컴퓨터 점수: 0</div>
+  <div id="messageDisplay">시작하려면 시작 버튼을 누르세요.</div>
+  <button id="startButton">시작</button>
+  <div class="game-over-overlay">
+    <div class="game-over-content">
+      <h2 class="game-over-title">게임 오버</h2>
+      <p class="game-over-score">최종 점수: <span id="finalScore">0</span> | 컴퓨터 최종 점수: <span id="finalComputerScore">0</span></p>
+      <button id="restartButton">다시 시작</button>
+    </div>
+  </div>
+  <script>
+    // 게임 로직
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const messageDisplay = document.getElementById("messageDisplay");
+    const startButton = document.getElementById("startButton");
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const gameOverOverlay = document.querySelector(".game-over-overlay");
+    const finalScoreDisplay = document.getElementById("finalScore");
+    const finalComputerScoreDisplay = document.getElementById("finalComputerScore");
+    const restartButton = document.getElementById("restartButton");
+
+    const gridSize = 20;
+    let snake = [{ x: 10, y: 10 }];
+    let food = { x: 15, y: 15 };
+    let direction = "right";
+    let score = 0;
+    let gameOver = false;
+    let gameInterval;
+    let canvasSize = 400; // 초기 캔버스 크기
+
+    // Function to handle game over state
+    function handleGameOver() {
+      gameOver = true;
+      clearInterval(gameInterval);
+      finalScoreDisplay.textContent = score;
+      finalComputerScoreDisplay.textContent = computerScore;
+      gameOverOverlay.style.display = "flex";
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "#06d6a0" : "#8ac926";
+        ctx.fillRect(
+          snake[i].x * gridSize,
+          snake[i].y * gridSize,
+          gridSize,
+          gridSize
+        );
+        ctx.strokeStyle = "#036635"; //뱀 테두리 색
+        ctx.strokeRect(
+          snake[i].x * gridSize,
+          snake[i].y * gridSize,
+          gridSize,
+          gridSize
+        );
+      }
+
+      ctx.fillStyle = "#ffca3a";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+      ctx.strokeStyle = "#c77900"; // 음식 테두리 색
+      ctx.strokeRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+      // Draw computer snake
+      for (let i = 0; i < computerSnake.length; i++) {
+        ctx.fillStyle = i === 0 ? "#ff851b" : "#f4a261";
+        ctx.fillRect(
+          computerSnake[i].x * gridSize,
+          computerSnake[i].y * gridSize,
+          gridSize,
+          gridSize
+        );
+        ctx.strokeStyle = "#995700";
+        ctx.strokeRect(
+          computerSnake[i].x * gridSize,
+          computerSnake[i].y * gridSize,
+          gridSize,
+          gridSize
+        );
+      }
+    }
+
+    function update() {
+      if (gameOver) {
+        return;
+      }
+
+      const head = { x: snake[0].x, y: snake[0].y };
+
+      switch (direction) {
+        case "up":
+          head.y--;
+          break;
+        case "down":
+          head.y++;
+          break;
+        case "left":
+          head.x--;
+          break;
+        case "right":
+          head.x++;
+          break;
+      }
+
+      if (
+        head.x < 0 ||
+        head.x >= canvasSize / gridSize ||
+        head.y < 0 ||
+        head.y >= canvasSize / gridSize ||
+        checkCollision(head)
+      ) {
+        handleGameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = {
+          x: Math.floor(Math.random() * (canvasSize / gridSize)),
+          y: Math.floor(Math.random() * (canvasSize / gridSize)),
+        };
+        scoreDisplay.textContent = `내 점수: ${score} | 컴퓨터 점수: ${computerScore}`;
+      } else {
+        snake.pop();
+      }
+
+      updateComputerSnake();
+      draw();
+    }
+
+    function checkCollision(head) {
+      for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function handleKeyDown(e) {
+      switch (e.key) {
+        case "ArrowUp":
+          if (direction !== "down") direction = "up";
+          break;
+        case "ArrowDown":
+          if (direction !== "up") direction = "down";
+          break;
+        case "ArrowLeft":
+          if (direction !== "right") direction = "left";
+          break;
+        case "ArrowRight":
+          if (direction !== "left") direction = "right";
+          break;
+      }
+    }
+
+    // Computer snake logic
+    let computerSnake = [{ x: 5, y: 5 }];
+    let computerDirection = "right";
+    let computerScore = 0;
+
+    function updateComputerSnake() {
+      const head = { x: computerSnake[0].x, y: computerSnake[0].y };
+
+      switch (computerDirection) {
+        case "up":
+          head.y--;
+          break;
+        case "down":
+          head.y++;
+          break;
+        case "left":
+          head.x--;
+          break;
+        case "right":
+          head.x++;
+          break;
+      }
+
+      if (
+        head.x < 0 ||
+        head.x >= canvasSize / gridSize ||
+        head.y < 0 ||
+        head.y >= canvasSize / gridSize ||
+        checkComputerCollision(head)
+      ) {
+        // 컴퓨터 뱀이 벽이나 자기 자신과 충돌하면 방향을 바꿈
+        computerDirection = ["up", "down", "left", "right"][Math.floor(Math.random() * 4)];
+        return; // 이번 턴에는 이동하지 않음
+      }
+
+      computerSnake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        computerScore++;
+        food = {
+          x: Math.floor(Math.random() * (canvasSize / gridSize)),
+          y: Math.floor(Math.random() * (canvasSize / gridSize)),
+        };
+        scoreDisplay.textContent = `내 점수: ${score} | 컴퓨터 점수: ${computerScore}`;
+      } else {
+        computerSnake.pop();
+      }
+
+      // Computer snake AI: Follow the food
+      if (head.x < food.x) {
+        if (computerDirection !== "left") computerDirection = "right";
+      } else if (head.x > food.x) {
+        if (computerDirection !== "right") computerDirection = "left";
+      } else if (head.y < food.y) {
+        if (computerDirection !== "up") computerDirection = "down";
+      } else if (head.y > food.y) {
+        if (computerDirection !== "down") computerDirection = "up";
+      }
+    }
+
+    function checkComputerCollision(head) {
+      for (let i = 1; i < computerSnake.length; i++) {
+        if (head.x === computerSnake[i].x && head.y === computerSnake[i].y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function startGame() {
+      if (gameInterval) clearInterval(gameInterval);
+      snake = [{ x: 10, y: 10 }];
+      direction = "right";
+      score = 0;
+      computerSnake = [{ x: 5, y: 5 }]; // Initialize computer snake
+      computerDirection = "right";
+      computerScore = 0;
+      gameOver = false;
+      scoreDisplay.textContent = `내 점수: ${score} | 컴퓨터 점수: ${computerScore}`;
+      gameOverOverlay.style.display = "none";
+      messageDisplay.textContent = "";
+      gameInterval = setInterval(update, 200);
+      document.addEventListener("keydown", handleKeyDown);
+      startButton.blur();
+    }
+
+    startButton.addEventListener("click", startGame);
+    restartButton.addEventListener("click", startGame);
+
+    // Add touch event listeners for mobile controls
+    let touchStartX = null;
+    let touchStartY = null;
+
+    canvas.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (!touchStartX || !touchStartY) {
+        return;
+      }
+
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const dx = touchEndX - touchStartX;
+      const dy = touchEndY - touchStartY;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal swipe
+        if (dx > 0) {
+          if (direction !== "left") direction = "right";
+        } else {
+          if (direction !== "right") direction = "left";
+        }
+      } else {
+        // Vertical swipe
+        if (dy > 0) {
+          if (direction !== "up") direction = "down";
+        } else {
+          if (direction !== "down") direction = "up";
+        }
+      }
+
+      // Reset touch start position
+      touchStartX = null;
+      touchStartY = null;
+    });
+
+    // Prevent scrolling when touching the canvas on mobile
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    // Adjust canvas size on window resize
+    window.addEventListener('resize', () => {
+      const containerWidth = document.querySelector('body').offsetWidth;
+      const newSize = Math.min(containerWidth - 40, 400); // Max size 400, leave some margin
+      canvasSize = newSize;
+      canvas.width = newSize;
+      canvas.height = newSize;
+      draw(); // Redraw the game to fit the new size
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!-- filepath: /gemini/gemini/games/game1/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임 1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>게임 1</h1>
+    <div id="game-container">
+        <!-- 게임 콘텐츠가 여기에 들어갑니다 -->
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<!-- filepath: /gemini/gemini/games/game1/style.css -->
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+#game-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+<!-- filepath: /gemini/gemini/games/game1/script.js -->
+document.addEventListener('DOMContentLoaded', function() {
+    // 게임 로직이 여기에 들어갑니다
+});
+
+<!-- filepath: /gemini/gemini/games/game2/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임 2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>게임 2</h1>
+    <div id="game-container">
+        <!-- 게임 콘텐츠가 여기에 들어갑니다 -->
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<!-- filepath: /gemini/gemini/games/game2/style.css -->
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e0e0e0;
+}
+
+#game-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+<!-- filepath: /gemini/gemini/games/game2/script.js -->
+document.addEventListener('DOMContentLoaded', function() {
+    // 게임 로직이 여기에 들어갑니다
+});
+
+<!-- filepath: /gemini/gemini/assets/audio -->
+<!-- 이 폴더는 게임에서 사용할 오디오 파일을 저장하는 디렉토리입니다. -->
+
+<!-- filepath: /gemini/gemini/assets/images -->
+<!-- 이 폴더는 게임에서 사용할 이미지 파일을 저장하는 디렉토리입니다. -->
+
+<!-- filepath: /gemini/gemini/README.md -->
+# gemini
+Google Gemini Canvas로 만든 HTML 게임들 모음
+
+<!-- filepath: /gemini/gemini/LICENSE -->
+<!-- 이 파일은 프로젝트의 라이선스 정보를 포함합니다. -->
